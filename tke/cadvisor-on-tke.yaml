@@ -1,0 +1,16 @@
+# 采集 TKE 节点容器监控 (非超级节点)
+- job_name: "cadvisor"
+  scheme: https
+  metrics_path: /metrics/cadvisor
+  tls_config:
+    insecure_skip_verify: true # tke 的 kubelet 使用自签证书，忽略证书校验
+  authorization:
+    credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  kubernetes_sd_configs:
+    - role: node
+  relabel_configs:
+    - source_labels: [__meta_kubernetes_node_label_node_kubernetes_io_instance_type]
+      regex: eklet # 排除超级节点
+      action: drop
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)

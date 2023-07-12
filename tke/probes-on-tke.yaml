@@ -1,0 +1,16 @@
+# 采集 TKE 节点容器健康检查健康数据
+- job_name: "probes"
+  scheme: https
+  metrics_path: /metrics/probes
+  tls_config:
+    insecure_skip_verify: true
+  authorization:
+    credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  kubernetes_sd_configs:
+    - role: node
+  relabel_configs:
+    - source_labels: [__meta_kubernetes_node_label_node_kubernetes_io_instance_type]
+      regex: eklet # 排除超级节点
+      action: drop
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)
